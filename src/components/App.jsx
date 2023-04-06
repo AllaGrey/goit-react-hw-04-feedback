@@ -1,50 +1,54 @@
 import { Feedback } from './AppStyled';
-import React, { Component } from 'react';
+import { useState } from 'react';
 import { FeedbackOptions } from './FeedbackOptions/FeedbackOptions';
 import { Statistics } from './Statistics/Statistics';
 
-export class App extends Component {
-  state = Object.freeze({
-    good: 0,
-    neutral: 0,
-    bad: 0,
-  });
-  onLeaveFeedback = event => {
-    const targetBtn = event.target.name;
-    this.setState(prevState => {
-      return {
-        [targetBtn]: prevState[targetBtn] + 1,
-      };
-    });
-    return targetBtn;
+export function App() {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+
+  const onLeaveFeedback = event => {
+    const name = event.target.name;
+
+    switch (name) {
+      case 'good':
+        setGood(prevState => prevState + 1);
+        break;
+      case 'neutral':
+        setNeutral(prevState => prevState + 1);
+        break;
+      case 'bad':
+        setBad(prevState => prevState + 1);
+        break;
+      default:
+        return;
+    }
   };
 
-  countTotal() {
-    const { good, neutral, bad } = this.state;
+  const countTotal = () => {
     return good + neutral + bad;
-  }
+  };
 
-  positivePercentage() {
-    return (this.state.good / this.countTotal()) * 100;
-  }
+  const positivePercentage = () => {
+    return (good / countTotal()) * 100;
+  };
+  const state = { good, neutral, bad };
 
-  render() {
-    const options = Object.keys(this.state);
-    return (
-      <Feedback>
-        <FeedbackOptions
-          options={options}
-          onLeaveFeedback={this.onLeaveFeedback}
-          title={'Please leave feedback'}
-        />
-        <Statistics
-          message={'There is no feedback'}
-          state={this.state}
-          title={'Statistics'}
-          total={this.countTotal()}
-          positivePercentage={Math.ceil(this.positivePercentage())}
-        />
-      </Feedback>
-    );
-  }
+  return (
+    <Feedback>
+      <FeedbackOptions
+        options={['good', 'neutral', 'bad']}
+        onLeaveFeedback={onLeaveFeedback}
+        title={'Please leave feedback'}
+      />
+      <Statistics
+        message={'There is no feedback'}
+        state={state}
+        title={'Statistics'}
+        total={countTotal()}
+        positivePercentage={Math.ceil(positivePercentage())}
+      />
+    </Feedback>
+  );
 }
